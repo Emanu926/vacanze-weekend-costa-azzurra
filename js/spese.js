@@ -43,12 +43,12 @@ function condividiSpese() {
 }
 
 function _getSpese() {
-    try { return JSON.parse(localStorage.getItem('vacation-spese') || '[]'); }
+    try { return JSON.parse(localStorage.getItem('wk-vacation-spese') || '[]'); }
     catch { return []; }
 }
 
 function _saveSpese(spese) {
-    localStorage.setItem('vacation-spese', JSON.stringify(spese));
+    localStorage.setItem('wk-vacation-spese', JSON.stringify(spese));
 }
 
 function renderSpese() {

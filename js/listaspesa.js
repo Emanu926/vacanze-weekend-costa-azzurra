@@ -51,12 +51,12 @@ function condividiLista() {
 }
 
 function _getLista() {
-    try { return JSON.parse(localStorage.getItem('vacation-listaspesa') || '[]'); }
+    try { return JSON.parse(localStorage.getItem('wk-vacation-listaspesa') || '[]'); }
     catch { return []; }
 }
 
 function _saveLista(lista) {
-    localStorage.setItem('vacation-listaspesa', JSON.stringify(lista));
+    localStorage.setItem('wk-vacation-listaspesa', JSON.stringify(lista));
 }
 
 function renderListaSpesa() {

@@ -1,7 +1,7 @@
 // ===== STATO =====
 const state = {
     section: 'home',
-    departure: new Date('2026-06-27T08:00:00')
+    departure: new Date('2026-10-02T08:00:00')
 };
 
 // ===== AVVIO =====
@@ -39,10 +39,10 @@ function goTo(id) {
 function initContatti() {
     document.querySelectorAll('.contatto-edit').forEach(el => {
         const key = el.dataset.key;
-        const saved = localStorage.getItem(key);
+        const saved = localStorage.getItem('wk-' + key);
         if (saved) el.textContent = saved;
         el.addEventListener('blur', () => {
-            localStorage.setItem(key, el.textContent.trim());
+            localStorage.setItem('wk-' + key, el.textContent.trim());
         });
     });
 }

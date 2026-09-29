@@ -29,12 +29,12 @@ function deleteNote(i) {
 }
 
 function _getNotes() {
-    try { return JSON.parse(localStorage.getItem('vacation-notes') || '[]'); }
+    try { return JSON.parse(localStorage.getItem('wk-vacation-notes') || '[]'); }
     catch { return []; }
 }
 
 function _saveNotes(notes) {
-    localStorage.setItem('vacation-notes', JSON.stringify(notes));
+    localStorage.setItem('wk-vacation-notes', JSON.stringify(notes));
 }
 
 function renderNotes() {

@@ -112,17 +112,48 @@ const CHECKLIST_DATA = [
 
 // ===== STATO =====
 function loadChecked() {
-    try { return JSON.parse(localStorage.getItem('checklist') || '{}'); } catch { return {}; }
+    try { return JSON.parse(localStorage.getItem('wk-checklist') || '{}'); } catch { return {}; }
 }
 function saveChecked(checked) {
-    localStorage.setItem('checklist', JSON.stringify(checked));
+    localStorage.setItem('wk-checklist', JSON.stringify(checked));
 }
 
 function loadCustomItems() {
-    try { return JSON.parse(localStorage.getItem('checklist_custom') || '[]'); } catch { return []; }
+    try { return JSON.parse(localStorage.getItem('wk-checklist_custom') || '[]'); } catch { return []; }
 }
 function saveCustomItems(items) {
-    localStorage.setItem('checklist_custom', JSON.stringify(items));
+    localStorage.setItem('wk-checklist_custom', JSON.stringify(items));
+}
+
+// Voci predefinite tolte dall'utente (weekend: lista più corta)
+function loadHidden() {
+    try { return JSON.parse(localStorage.getItem('wk-checklist_hidden') || '[]'); } catch { return []; }
+}
+function saveHidden(ids) {
+    localStorage.setItem('wk-checklist_hidden', JSON.stringify(ids));
+}
+function visibleData() {
+    const hidden = loadHidden();
+    return CHECKLIST_DATA
+        .map(c => ({ ...c, items: c.items.filter(i => !hidden.includes(i.id)) }))
+        .filter(c => c.items.length > 0);
+}
+function hideDefaultItem(id) {
+    if (!confirm('Togliere questa voce dalla lista?')) return;
+    const hidden = loadHidden();
+    if (!hidden.includes(id)) hidden.push(id);
+    saveHidden(hidden);
+    const checked = loadChecked();
+    delete checked[id];
+    saveChecked(checked);
+    renderChecklist();
+    updateChecklistWidget();
+}
+function restoreHidden() {
+    if (!confirm('Rimettere tutte le voci tolte?')) return;
+    saveHidden([]);
+    renderChecklist();
+    updateChecklistWidget();
 }
 
 // ===== INIT =====
@@ -138,9 +169,11 @@ function renderChecklist() {
 
     const checked     = loadChecked();
     const customItems = loadCustomItems();
-    const total = CHECKLIST_DATA.reduce((n, c) => n + c.items.length, 0) + customItems.length;
+    const data  = visibleData();
+    const total = data.reduce((n, c) => n + c.items.length, 0) + customItems.length;
     const done  = Object.values(checked).filter(Boolean).length;
     const pct   = total > 0 ? Math.round(done / total * 100) : 0;
+    const nHidden = loadHidden().length;
 
     let html = `
         <div class="cl-header">
@@ -150,11 +183,12 @@ function renderChecklist() {
             <div class="cl-progress-label">${done} di ${total} · ${pct}%</div>
         </div>
         <div class="cl-reset-row">
-            <button class="cl-reset-btn" onclick="resetChecklist()">🔄 Nuovo anno — reset tutto</button>
+            <button class="cl-reset-btn" onclick="resetChecklist()">🔄 Nuovo weekend — reset spunte</button>
+            ${nHidden ? `<button class="cl-reset-btn" onclick="restoreHidden()">↩️ Rimetti ${nHidden} voci tolte</button>` : ''}
         </div>
     `;
 
-    CHECKLIST_DATA.forEach(cat => {
+    data.forEach(cat => {
         const catDone  = cat.items.filter(i => checked[i.id]).length;
         const catTotal = cat.items.length;
         const allDone  = catDone === catTotal;
@@ -173,10 +207,13 @@ function renderChecklist() {
         cat.items.forEach(item => {
             const isChecked = !!checked[item.id];
             html += `
-                <label class="cl-item ${isChecked ? 'checked' : ''}" onclick="toggleItem('${item.id}')">
-                    <span class="cl-checkbox">${isChecked ? '✅' : '⬜'}</span>
-                    <span class="cl-item-text">${item.text}</span>
-                </label>
+                <div class="cl-custom-row">
+                    <label class="cl-item ${isChecked ? 'checked' : ''}" onclick="toggleItem('${item.id}')">
+                        <span class="cl-checkbox">${isChecked ? '✅' : '⬜'}</span>
+                        <span class="cl-item-text">${item.text}</span>
+                    </label>
+                    <button class="cl-delete-btn" onclick="hideDefaultItem('${item.id}')">×</button>
+                </div>
             `;
         });
 
@@ -297,7 +334,7 @@ function updateChecklistWidget() {
     if (!el) return;
     const checked     = loadChecked();
     const customItems = loadCustomItems();
-    const total = CHECKLIST_DATA.reduce((n, c) => n + c.items.length, 0) + customItems.length;
+    const total = visibleData().reduce((n, c) => n + c.items.length, 0) + customItems.length;
     const done  = Object.values(checked).filter(Boolean).length;
     const pct   = total > 0 ? Math.round(done / total * 100) : 0;
     el.textContent = pct + '%';
