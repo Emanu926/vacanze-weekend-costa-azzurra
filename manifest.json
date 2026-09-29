@@ -1,11 +1,11 @@
 {
-    "name": "Vacanze Ema & Stefy",
-    "short_name": "E & S",
-    "description": "App personale per le vacanze in Costa Azzurra",
+    "name": "Weekend Costa Azzurra",
+    "short_name": "Weekend CA",
+    "description": "App personale per il weekend in Costa Azzurra",
     "start_url": "./index.html",
     "display": "standalone",
-    "background_color": "#0077B6",
-    "theme_color": "#0077B6",
+    "background_color": "#E8553D",
+    "theme_color": "#E8553D",
     "orientation": "portrait-primary",
     "icons": [
         {
