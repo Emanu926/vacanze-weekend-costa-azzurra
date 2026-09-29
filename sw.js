@@ -1,4 +1,4 @@
-const CACHE = 'weekend-ca-v1';
+﻿const CACHE = 'weekend-ca-v2';
 const ASSETS = [
     './index.html',
     './css/style.css',
