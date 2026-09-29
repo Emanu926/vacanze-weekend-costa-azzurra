@@ -1,4 +1,4 @@
-﻿const CACHE = 'weekend-ca-v2';
+const CACHE = 'weekend-ca-v3';
 const ASSETS = [
     './index.html',
     './css/style.css',
@@ -29,11 +29,12 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
-    if (e.request.mode === 'navigate') {
-        e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
-    } else {
-        e.respondWith(
-            caches.match(e.request).then(cached => cached || fetch(e.request))
-        );
-    }
+    // Prima la rete (versione sempre aggiornata), la cache solo se manca la connessione
+    e.respondWith(
+        fetch(e.request).then(res => {
+            const copy = res.clone();
+            caches.open(CACHE).then(c => c.put(e.request, copy));
+            return res;
+        }).catch(() => caches.match(e.request, { ignoreSearch: true }))
+    );
 });
